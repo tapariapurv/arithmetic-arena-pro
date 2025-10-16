@@ -1,13 +1,71 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Difficulty, GameStats } from "@/types/game";
+import LevelSelection from "@/components/LevelSelection";
+import GamePlay from "@/components/GamePlay";
+import GameResults from "@/components/GameResults";
+import Leaderboard from "@/components/Leaderboard";
+
+type Screen = "menu" | "game" | "results" | "leaderboard";
 
 const Index = () => {
+  const [currentScreen, setCurrentScreen] = useState<Screen>("menu");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("easy");
+  const [gameStats, setGameStats] = useState<GameStats | null>(null);
+
+  const handleSelectLevel = (level: Difficulty) => {
+    setSelectedDifficulty(level);
+    setCurrentScreen("game");
+  };
+
+  const handleGameEnd = (stats: GameStats) => {
+    setGameStats(stats);
+    setCurrentScreen("results");
+  };
+
+  const handlePlayAgain = () => {
+    setCurrentScreen("game");
+  };
+
+  const handleBackToMenu = () => {
+    setCurrentScreen("menu");
+    setGameStats(null);
+  };
+
+  const handleShowLeaderboard = () => {
+    setCurrentScreen("leaderboard");
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <>
+      {currentScreen === "menu" && (
+        <LevelSelection
+          onSelectLevel={handleSelectLevel}
+          onShowLeaderboard={handleShowLeaderboard}
+        />
+      )}
+
+      {currentScreen === "game" && (
+        <GamePlay
+          difficulty={selectedDifficulty}
+          onBack={handleBackToMenu}
+          onGameEnd={handleGameEnd}
+        />
+      )}
+
+      {currentScreen === "results" && gameStats && (
+        <GameResults
+          stats={gameStats}
+          difficulty={selectedDifficulty}
+          onPlayAgain={handlePlayAgain}
+          onBackToMenu={handleBackToMenu}
+          onShowLeaderboard={handleShowLeaderboard}
+        />
+      )}
+
+      {currentScreen === "leaderboard" && (
+        <Leaderboard onBack={handleBackToMenu} />
+      )}
+    </>
   );
 };
 
